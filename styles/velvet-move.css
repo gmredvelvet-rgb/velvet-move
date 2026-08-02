@@ -1,0 +1,257 @@
+/* Velvet Move — quick menu.
+   Sized off Foundry's own variables so the window sits inside whatever theme
+   the user runs, rather than fighting it. */
+
+.velvet-move-menu .vm-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  font-size: var(--font-size-13, 13px);
+}
+
+.velvet-move-menu .vm-section {
+  border: 1px solid var(--color-border-light-tertiary, rgba(0, 0, 0, 0.25));
+  border-radius: 6px;
+  padding: 0.5rem 0.65rem 0.65rem;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.velvet-move-menu .vm-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.5rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--color-border-light-tertiary, rgba(0, 0, 0, 0.2));
+  font-size: var(--font-size-14, 14px);
+  font-weight: 600;
+}
+
+.velvet-move-menu .vm-heading > button {
+  margin-left: auto;
+}
+
+.velvet-move-menu .vm-badge {
+  font-size: 0.7em;
+  letter-spacing: 0.08em;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  background: var(--color-warm-2, #7a4b8a);
+  color: #fff;
+}
+
+.velvet-move-menu .vm-hint {
+  margin: 0 0 0.5rem;
+  opacity: 0.75;
+  font-size: 0.9em;
+}
+
+.velvet-move-menu .vm-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.velvet-move-menu .vm-field > label:first-child {
+  flex: 0 0 40%;
+}
+
+.velvet-move-menu .vm-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  cursor: pointer;
+  flex: 1;
+}
+
+.velvet-move-menu .vm-toggle input {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.velvet-move-menu .vm-range {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.velvet-move-menu .vm-range input[type="range"] {
+  flex: 1;
+  min-width: 0;
+}
+
+.velvet-move-menu .vm-value {
+  flex: 0 0 3.2em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
+}
+
+.velvet-move-menu hr {
+  margin: 0.6rem 0;
+  border: none;
+  border-top: 1px solid var(--color-border-light-tertiary, rgba(0, 0, 0, 0.2));
+}
+
+/* Surfaces ------------------------------------------------------------- */
+
+.velvet-move-menu .vm-surfaces {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  max-height: 22rem;
+  overflow-y: auto;
+}
+
+.velvet-move-menu .vm-surface {
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.velvet-move-menu .vm-surface.active {
+  border-color: var(--color-warm-2, #8a5cf6);
+  background: rgba(138, 92, 246, 0.16);
+}
+
+.velvet-move-menu .vm-surface-row {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.3rem;
+}
+
+.velvet-move-menu .vm-surface-pick {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  padding: 0.25rem 0.35rem;
+  color: inherit;
+}
+
+.velvet-move-menu .vm-surface-pick:hover {
+  text-shadow: 0 0 6px var(--color-shadow-primary, #ff0000);
+}
+
+.velvet-move-menu .vm-surface-pick > i {
+  flex: 0 0 1.1rem;
+  text-align: center;
+}
+
+.velvet-move-menu .vm-surface-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.velvet-move-menu .vm-count {
+  flex: 0 0 auto;
+  font-size: 0.8em;
+  opacity: 0.6;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  border: 1px solid currentcolor;
+}
+
+.velvet-move-menu .vm-icon-button {
+  flex: 0 0 auto;
+  width: 1.8rem;
+  height: 1.8rem;
+  line-height: 1;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  opacity: 0.75;
+  color: inherit;
+}
+
+.velvet-move-menu .vm-icon-button:hover {
+  opacity: 1;
+}
+
+.velvet-move-menu .vm-danger:hover {
+  color: var(--color-level-error, #d64545);
+}
+
+/* Surface editor ------------------------------------------------------- */
+
+.velvet-move-menu .vm-surface-editor {
+  padding: 0.4rem 0.6rem 0.6rem;
+  border-top: 1px dashed var(--color-border-light-tertiary, rgba(0, 0, 0, 0.25));
+}
+
+.velvet-move-menu .vm-editor-grid {
+  display: grid;
+  grid-template-columns: 5rem 1fr;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.velvet-move-menu .vm-files {
+  list-style: none;
+  margin: 0 0 0.5rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  max-height: 12rem;
+  overflow-y: auto;
+}
+
+.velvet-move-menu .vm-file {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.1rem 0.2rem;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.velvet-move-menu .vm-file-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.9em;
+}
+
+.velvet-move-menu .vm-empty {
+  opacity: 0.6;
+  font-style: italic;
+  padding: 0.2rem;
+}
+
+.velvet-move-menu .vm-editor-actions,
+.velvet-move-menu .vm-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.velvet-move-menu .vm-editor-actions button,
+.velvet-move-menu .vm-footer button {
+  flex: 1 1 auto;
+  white-space: nowrap;
+  font-size: 0.9em;
+  line-height: 1.6;
+}
+
+.velvet-move-menu .vm-footer {
+  margin-top: 0.5rem;
+}

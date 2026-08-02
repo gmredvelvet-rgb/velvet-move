@@ -1,0 +1,177 @@
+{{!-- Velvet Move — quick menu --}}
+<div class="vm-menu">
+
+  <section class="vm-section vm-motion">
+    <h3 class="vm-heading">
+      <i class="fa-solid fa-person-running"></i> {{localize "VELVETMOVE.menu.motion"}}
+      {{#if isometric}}<span class="vm-badge" data-tooltip="{{localize 'VELVETMOVE.menu.isoHint'}}">ISO</span>{{/if}}
+    </h3>
+
+    <div class="vm-field">
+      <label class="vm-toggle">
+        <input type="checkbox" data-setting="hopEnabled" {{checked motion.hopEnabled}}>
+        <span>{{localize "VELVETMOVE.settings.hopEnabled.name"}}</span>
+      </label>
+    </div>
+
+    <div class="vm-field vm-range">
+      <label>{{localize "VELVETMOVE.settings.hopHeight.name"}}</label>
+      <input type="range" data-setting="hopHeight" min="0" max="0.6" step="0.01" value="{{motion.hopHeight}}">
+      <span class="vm-value">{{motion.hopPercent}}%</span>
+    </div>
+
+    {{#if isGM}}
+    <div class="vm-field vm-range">
+      <label>{{localize "VELVETMOVE.settings.stepLength.name"}}</label>
+      <input type="range" data-setting="stepLength" min="0.25" max="3" step="0.05" value="{{motion.stepLength}}">
+      <span class="vm-value vm-value-plain">{{numberFormat motion.stepLength decimals=2}}</span>
+    </div>
+
+    <div class="vm-field">
+      <label class="vm-toggle">
+        <input type="checkbox" data-setting="ignoreElevated" {{checked motion.ignoreElevated}}>
+        <span>{{localize "VELVETMOVE.settings.ignoreElevated.name"}}</span>
+      </label>
+    </div>
+    {{/if}}
+
+    <hr>
+
+    <div class="vm-field">
+      <label class="vm-toggle">
+        <input type="checkbox" data-setting="soundEnabled" {{checked motion.soundEnabled}}>
+        <span>{{localize "VELVETMOVE.settings.soundEnabled.name"}}</span>
+      </label>
+    </div>
+
+    <div class="vm-field vm-range">
+      <label>{{localize "VELVETMOVE.settings.masterVolume.name"}}</label>
+      <input type="range" data-setting="masterVolume" min="0" max="1" step="0.05" value="{{motion.masterVolume}}">
+      <span class="vm-value">{{motion.volumePercent}}%</span>
+    </div>
+
+    <div class="vm-field vm-range">
+      <label>{{localize "VELVETMOVE.settings.pitchVariation.name"}}</label>
+      <input type="range" data-setting="pitchVariation" min="0" max="0.4" step="0.01" value="{{motion.pitchVariation}}">
+      <span class="vm-value">{{motion.pitchPercent}}%</span>
+    </div>
+
+    <div class="vm-field">
+      <label>{{localize "VELVETMOVE.settings.audience.name"}}</label>
+      <select data-setting="audience">
+        {{#each motion.audienceOptions as |option|}}
+        <option value="{{option.value}}" {{#if option.selected}}selected{{/if}}>{{localize option.label}}</option>
+        {{/each}}
+      </select>
+    </div>
+  </section>
+
+  <section class="vm-section vm-surfaces-section">
+    <h3 class="vm-heading">
+      <i class="fa-solid fa-layer-group"></i> {{localize "VELVETMOVE.menu.surfaces"}}
+      {{#if isGM}}
+      <button type="button" class="vm-icon-button" data-action="addSurface"
+              data-tooltip="{{localize 'VELVETMOVE.menu.newSurface'}}">
+        <i class="fa-solid fa-plus"></i>
+      </button>
+      {{/if}}
+    </h3>
+
+    {{#if isGM}}
+    <p class="vm-hint">{{localize "VELVETMOVE.menu.surfacesHint"}}</p>
+    {{else}}
+    <p class="vm-hint">{{localize "VELVETMOVE.menu.surfacesHintPlayer"}}</p>
+    {{/if}}
+
+    <ol class="vm-surfaces">
+      {{#each surfaces as |surface|}}
+      <li class="vm-surface {{#if surface.active}}active{{/if}}" data-surface-id="{{surface.id}}">
+        <div class="vm-surface-row">
+          <button type="button" class="vm-surface-pick" data-action="activate" data-surface-id="{{surface.id}}"
+                  data-tooltip="{{localize 'VELVETMOVE.menu.useForScene'}}">
+            <i class="{{surface.icon}}"></i>
+            <span class="vm-surface-name">{{surface.name}}</span>
+            <span class="vm-count">{{surface.files.length}}</span>
+          </button>
+
+          <button type="button" class="vm-icon-button" data-action="preview" data-surface-id="{{surface.id}}"
+                  data-tooltip="{{localize 'VELVETMOVE.menu.preview'}}">
+            <i class="fa-solid fa-volume-high"></i>
+          </button>
+
+          {{#if @root.isGM}}
+          <button type="button" class="vm-icon-button" data-action="toggleExpand" data-surface-id="{{surface.id}}"
+                  data-tooltip="{{localize 'VELVETMOVE.menu.edit'}}">
+            <i class="fa-solid {{#if surface.expanded}}fa-chevron-up{{else}}fa-sliders{{/if}}"></i>
+          </button>
+          {{/if}}
+        </div>
+
+        {{#if surface.expanded}}
+        <div class="vm-surface-editor">
+          <div class="vm-editor-grid">
+            <label>{{localize "VELVETMOVE.menu.label"}}</label>
+            <input type="text" value="{{surface.name}}"
+                   data-surface-field="label" data-surface-id="{{surface.id}}">
+
+            <label>{{localize "VELVETMOVE.menu.icon"}}</label>
+            <input type="text" value="{{surface.icon}}" placeholder="fa-solid fa-mountain"
+                   data-surface-field="icon" data-surface-id="{{surface.id}}">
+
+            <label>{{localize "VELVETMOVE.menu.volume"}}</label>
+            <div class="vm-range">
+              <input type="range" min="0" max="1.5" step="0.05" value="{{surface.volume}}"
+                     data-surface-field="volume" data-surface-id="{{surface.id}}">
+              <span class="vm-value">{{surface.volumePercent}}%</span>
+            </div>
+          </div>
+
+          <ol class="vm-files">
+            {{#each surface.files as |file|}}
+            <li class="vm-file">
+              <button type="button" class="vm-icon-button" data-action="playSound" data-path="{{file.path}}"
+                      data-tooltip="{{localize 'VELVETMOVE.menu.play'}}">
+                <i class="fa-solid fa-play"></i>
+              </button>
+              <span class="vm-file-name" data-tooltip="{{file.path}}">{{file.name}}</span>
+              <button type="button" class="vm-icon-button vm-danger" data-action="removeSound"
+                      data-surface-id="{{surface.id}}" data-index="{{file.index}}"
+                      data-tooltip="{{localize 'VELVETMOVE.menu.remove'}}">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </li>
+            {{else}}
+            <li class="vm-empty">{{localize "VELVETMOVE.menu.noSounds"}}</li>
+            {{/each}}
+          </ol>
+
+          <div class="vm-editor-actions">
+            <button type="button" data-action="addFile" data-surface-id="{{surface.id}}">
+              <i class="fa-solid fa-file-audio"></i> {{localize "VELVETMOVE.menu.addFile"}}
+            </button>
+            <button type="button" data-action="addFolder" data-surface-id="{{surface.id}}">
+              <i class="fa-solid fa-folder-open"></i> {{localize "VELVETMOVE.menu.addFolder"}}
+            </button>
+            <button type="button" data-action="assignTokens" data-surface-id="{{surface.id}}"
+                    data-tooltip="{{localize 'VELVETMOVE.menu.assignHint'}}">
+              <i class="fa-solid fa-user-check"></i> {{localize "VELVETMOVE.menu.assign"}} ({{@root.selectedCount}})
+            </button>
+            <button type="button" class="vm-danger" data-action="deleteSurface" data-surface-id="{{surface.id}}">
+              <i class="fa-solid fa-trash"></i> {{localize "VELVETMOVE.menu.delete"}}
+            </button>
+          </div>
+        </div>
+        {{/if}}
+      </li>
+      {{/each}}
+    </ol>
+
+    {{#if isGM}}
+    <div class="vm-footer">
+      <button type="button" data-action="clearTokens">
+        <i class="fa-solid fa-eraser"></i> {{localize "VELVETMOVE.menu.clearTokens"}}
+      </button>
+    </div>
+    {{/if}}
+  </section>
+</div>
