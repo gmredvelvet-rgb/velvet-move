@@ -14,8 +14,6 @@
  * @module projection
  */
 
-import { ISO_ID } from "./constants.js";
-
 /**
  * The stage-space vector that displaces a mesh `lift` pixels up the screen.
  *
@@ -56,18 +54,15 @@ export function liftVector(lift) {
 }
 
 /**
- * Whether Isometric Perspective is projecting this scene.
- * Only used for reporting and for the odd cosmetic decision — the hop itself
- * derives everything from the live stage transform.
- * @param {Scene} [scene]
- * @returns {boolean}
+ * Straight up the screen, ignoring whatever the stage is doing.
+ *
+ * This is what a top-down scene wants, and it is also what someone choosing
+ * "2D" over "automatic" is asking for: the hop as a plain vertical lift, even
+ * in a scene another module is projecting.
+ *
+ * @param {number} lift
+ * @returns {{x: number, y: number}}
  */
-export function isIsometricScene(scene = canvas?.scene) {
-  if (!game.modules.get(ISO_ID)?.active) return false;
-  try {
-    if (!game.settings.get(ISO_ID, "worldIsometricFlag")) return false;
-  } catch {
-    return false;
-  }
-  return !!scene?.getFlag(ISO_ID, "isometricEnabled");
+export function flatLiftVector(lift) {
+  return { x: 0, y: -lift };
 }

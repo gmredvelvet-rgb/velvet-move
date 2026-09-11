@@ -1,89 +1,125 @@
 /* Velvet Move — quick menu.
-   Sized off Foundry's own variables so the window sits inside whatever theme
-   the user runs, rather than fighting it. */
 
-.velvet-move-menu .vm-menu {
+   Every class here is prefixed `vmove-`, not `vm-`. Velvet Mobile owns `vm-`
+   and its stylesheet is loaded world-wide: its `.vm-empty` is a fixed,
+   full-viewport overlay, so sharing that one class name turned an empty sound
+   list into an invisible sheet of glass over the whole window that swallowed
+   every click. Prefixes are cheap; that bug was not. */
+
+.velvet-move-menu .window-content {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  padding: 0.5rem;
+  padding: 0;
+  overflow: hidden;
+}
+
+.velvet-move-menu .vmove-menu {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  gap: 0.7rem;
+  min-height: 0;
+  padding: 0.6rem;
+  overflow-y: auto;
   font-size: var(--font-size-13, 13px);
 }
 
-.velvet-move-menu .vm-section {
-  border: 1px solid var(--color-border-light-tertiary, rgba(0, 0, 0, 0.25));
+.velvet-move-menu .vmove-section {
+  flex: 0 0 auto;
+  border: 1px solid var(--color-border-light-tertiary, rgba(255, 255, 255, 0.12));
   border-radius: 6px;
-  padding: 0.5rem 0.65rem 0.65rem;
-  background: rgba(0, 0, 0, 0.08);
+  padding: 0.5rem 0.7rem 0.7rem;
+  background: rgba(0, 0, 0, 0.12);
 }
 
-.velvet-move-menu .vm-heading {
+.velvet-move-menu .vmove-heading {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   margin: 0 0 0.5rem;
   padding-bottom: 0.35rem;
-  border-bottom: 1px solid var(--color-border-light-tertiary, rgba(0, 0, 0, 0.2));
+  border-bottom: 1px solid var(--color-border-light-tertiary, rgba(255, 255, 255, 0.12));
   font-size: var(--font-size-14, 14px);
   font-weight: 600;
 }
 
-.velvet-move-menu .vm-heading > button {
-  margin-left: auto;
-}
-
-.velvet-move-menu .vm-badge {
-  font-size: 0.7em;
-  letter-spacing: 0.08em;
-  padding: 0.1rem 0.35rem;
-  border-radius: 3px;
-  background: var(--color-warm-2, #7a4b8a);
-  color: #fff;
-}
-
-.velvet-move-menu .vm-hint {
-  margin: 0 0 0.5rem;
-  opacity: 0.75;
-  font-size: 0.9em;
-}
-
-.velvet-move-menu .vm-field {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.35rem;
-}
-
-.velvet-move-menu .vm-field > label:first-child {
-  flex: 0 0 40%;
-}
-
-.velvet-move-menu .vm-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  cursor: pointer;
+.velvet-move-menu .vmove-heading > span:first-of-type {
   flex: 1;
 }
 
-.velvet-move-menu .vm-toggle input {
+.velvet-move-menu .vmove-badge {
   flex: 0 0 auto;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  background: #7a4b8a;
+  color: #fff;
+  font-size: 0.7em;
+  letter-spacing: 0.08em;
+}
+
+.velvet-move-menu .vmove-hint {
+  margin: 0 0 0.5rem;
+  opacity: 0.7;
+  font-size: 0.88em;
+  line-height: 1.35;
+}
+
+.velvet-move-menu .vmove-warn {
+  color: #e0b060;
+}
+
+.velvet-move-menu .vmove-hint code {
+  padding: 0 0.25em;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Fields and controls -------------------------------------------------- */
+
+.velvet-move-menu .vmove-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.velvet-move-menu .vmove-field > label {
+  flex: 0 0 38%;
   margin: 0;
 }
 
-.velvet-move-menu .vm-range {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex: 1;
-}
-
-.velvet-move-menu .vm-range input[type="range"] {
+.velvet-move-menu .vmove-field > select {
   flex: 1;
   min-width: 0;
 }
 
-.velvet-move-menu .vm-value {
+.velvet-move-menu .vmove-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.4rem;
+  cursor: pointer;
+}
+
+.velvet-move-menu .vmove-toggle input {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.velvet-move-menu .vmove-range {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.velvet-move-menu .vmove-range input[type="range"] {
+  flex: 1;
+  min-width: 0;
+}
+
+.velvet-move-menu .vmove-value {
   flex: 0 0 3.2em;
   text-align: right;
   font-variant-numeric: tabular-nums;
@@ -93,136 +129,158 @@
 .velvet-move-menu hr {
   margin: 0.6rem 0;
   border: none;
-  border-top: 1px solid var(--color-border-light-tertiary, rgba(0, 0, 0, 0.2));
+  border-top: 1px solid var(--color-border-light-tertiary, rgba(255, 255, 255, 0.12));
 }
 
 /* Surfaces ------------------------------------------------------------- */
 
-.velvet-move-menu .vm-surfaces {
+.velvet-move-menu .vmove-surfaces {
   list-style: none;
-  margin: 0;
-  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
-  max-height: 22rem;
-  overflow-y: auto;
+  margin: 0 0 0.5rem;
+  padding: 0;
 }
 
-.velvet-move-menu .vm-surface {
+.velvet-move-menu .vmove-surface {
   border: 1px solid transparent;
   border-radius: 5px;
-  background: rgba(0, 0, 0, 0.12);
+  background: rgba(0, 0, 0, 0.18);
 }
 
-.velvet-move-menu .vm-surface.active {
-  border-color: var(--color-warm-2, #8a5cf6);
+.velvet-move-menu .vmove-surface.is-active {
+  border-color: #8a5cf6;
   background: rgba(138, 92, 246, 0.16);
 }
 
-.velvet-move-menu .vm-surface-row {
+.velvet-move-menu .vmove-surface-row {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  padding: 0.2rem 0.3rem;
+  padding: 0.2rem 0.35rem;
 }
 
-.velvet-move-menu .vm-surface-pick {
+.velvet-move-menu .vmove-surface-pick {
   display: flex;
   align-items: center;
   gap: 0.55rem;
   flex: 1;
   min-width: 0;
+  padding: 0.3rem 0.35rem;
   border: none;
   background: none;
+  color: inherit;
   text-align: left;
   cursor: pointer;
-  padding: 0.25rem 0.35rem;
-  color: inherit;
 }
 
-.velvet-move-menu .vm-surface-pick:hover {
-  text-shadow: 0 0 6px var(--color-shadow-primary, #ff0000);
+.velvet-move-menu .vmove-surface-pick:hover {
+  color: var(--color-text-hyperlink, #a78bfa);
 }
 
-.velvet-move-menu .vm-surface-pick > i {
+.velvet-move-menu .vmove-surface-pick > i {
   flex: 0 0 1.1rem;
   text-align: center;
 }
 
-.velvet-move-menu .vm-surface-name {
+.velvet-move-menu .vmove-surface-name {
   flex: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.velvet-move-menu .vm-count {
+.velvet-move-menu .vmove-count,
+.velvet-move-menu .vmove-tag {
   flex: 0 0 auto;
-  font-size: 0.8em;
-  opacity: 0.6;
-  padding: 0 0.35rem;
-  border-radius: 999px;
+  padding: 0 0.4rem;
   border: 1px solid currentcolor;
+  border-radius: 999px;
+  font-size: 0.78em;
+  line-height: 1.5;
+  opacity: 0.6;
 }
 
-.velvet-move-menu .vm-icon-button {
+.velvet-move-menu .vmove-tag {
+  border-color: #d3b06a;
+  color: #d3b06a;
+  opacity: 0.9;
+}
+
+.velvet-move-menu .vmove-icon-button {
   flex: 0 0 auto;
-  width: 1.8rem;
-  height: 1.8rem;
-  line-height: 1;
+  width: 1.9rem;
+  height: 1.9rem;
   padding: 0;
   border: none;
   background: none;
-  cursor: pointer;
-  opacity: 0.75;
   color: inherit;
+  line-height: 1;
+  opacity: 0.75;
+  cursor: pointer;
 }
 
-.velvet-move-menu .vm-icon-button:hover {
+.velvet-move-menu .vmove-icon-button:hover {
   opacity: 1;
 }
 
-.velvet-move-menu .vm-danger:hover {
-  color: var(--color-level-error, #d64545);
+.velvet-move-menu .vmove-danger:hover {
+  color: #e06060;
 }
 
 /* Surface editor ------------------------------------------------------- */
 
-.velvet-move-menu .vm-surface-editor {
-  padding: 0.4rem 0.6rem 0.6rem;
-  border-top: 1px dashed var(--color-border-light-tertiary, rgba(0, 0, 0, 0.25));
+.velvet-move-menu .vmove-editor {
+  padding: 0.45rem 0.6rem 0.6rem;
+  border-top: 1px dashed var(--color-border-light-tertiary, rgba(255, 255, 255, 0.15));
 }
 
-.velvet-move-menu .vm-editor-grid {
+.velvet-move-menu .vmove-editor-grid {
   display: grid;
   grid-template-columns: 5rem 1fr;
   align-items: center;
   gap: 0.35rem 0.5rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.55rem;
 }
 
-.velvet-move-menu .vm-files {
+.velvet-move-menu .vmove-editor-grid > label {
+  margin: 0;
+}
+
+.velvet-move-menu .vmove-sounds-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.2rem;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.65;
+}
+
+.velvet-move-menu .vmove-files {
   list-style: none;
-  margin: 0 0 0.5rem;
-  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
-  max-height: 12rem;
+  margin: 0 0 0.55rem;
+  padding: 0;
+  max-height: 11rem;
   overflow-y: auto;
 }
 
-.velvet-move-menu .vm-file {
+.velvet-move-menu .vmove-file {
   display: flex;
   align-items: center;
   gap: 0.25rem;
   padding: 0.1rem 0.2rem;
   border-radius: 3px;
-  background: rgba(0, 0, 0, 0.15);
+  background: rgba(0, 0, 0, 0.22);
 }
 
-.velvet-move-menu .vm-file-name {
+.velvet-move-menu .vmove-file-name {
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -231,27 +289,44 @@
   font-size: 0.9em;
 }
 
-.velvet-move-menu .vm-empty {
-  opacity: 0.6;
+.velvet-move-menu .vmove-empty {
+  padding: 0.3rem 0.2rem;
+  opacity: 0.55;
   font-style: italic;
-  padding: 0.2rem;
 }
 
-.velvet-move-menu .vm-editor-actions,
-.velvet-move-menu .vm-footer {
+/* Button rows ---------------------------------------------------------- */
+
+.velvet-move-menu .vmove-buttons {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
+  margin-bottom: 0.35rem;
 }
 
-.velvet-move-menu .vm-editor-actions button,
-.velvet-move-menu .vm-footer button {
-  flex: 1 1 auto;
-  white-space: nowrap;
-  font-size: 0.9em;
+.velvet-move-menu .vmove-buttons:last-child {
+  margin-bottom: 0;
+}
+
+.velvet-move-menu .vmove-buttons button {
+  flex: 1 1 8rem;
+  min-width: 0;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.88em;
   line-height: 1.6;
+  white-space: nowrap;
 }
 
-.velvet-move-menu .vm-footer {
-  margin-top: 0.5rem;
+.velvet-move-menu .vmove-buttons-wide button {
+  flex: 1 1 10rem;
+}
+
+.velvet-move-menu .vmove-buttons button[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.velvet-move-menu .vmove-folder {
+  margin: 0.4rem 0 0;
+  font-size: 0.82em;
 }

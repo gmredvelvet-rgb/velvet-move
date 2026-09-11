@@ -9,27 +9,19 @@
  * plays on every landing, which is the same instant the phase crosses a whole
  * number. Slow walk, hasted sprint, ten-cell drag: the cadence follows.
  *
- * Two implementation notes that matter for living beside Isometric
- * Perspective:
- *
- * - **We offset `mesh.position`, and we do it last.** Isometric Perspective
- *   recomputes the mesh position from scratch on every `refreshToken`, so
- *   animating `document.texture.scaleX/Y` (which is how the effect works in
- *   Velvet Mobile) is simply discarded in an isometric scene. Painting the
- *   offset on top, from a hook registered during `ready` — after theirs — is
- *   the one place the value survives to the frame.
- * - **The paint is self-correcting.** Before applying a new offset we check
- *   whether the position is still the exact one we wrote; if it is, we peel
- *   our own offset back off to recover the clean base, and if it is not,
- *   whoever overwrote it has given us a fresh base already. Either way no
- *   offset is ever counted twice, so the token cannot drift up the map.
+ * This module owns the *timing*: how far a token has walked, when a stride
+ * lands, how high it should be right now. Where "up" is and what object to
+ * move is the renderer's business — see `renderers.js`, which answers that
+ * for top-down, Isometric Perspective and 3D Canvas alike. The renderer is
+ * re-resolved every frame, so toggling 3D Canvas mid-session, or walking onto
+ * an isometric scene, needs no reload and no bookkeeping here.
  *
  * @module motion
  */
 
-import { MODULE_ID, LAND_MS, TELEPORT_CELLS } from "./constants.js";
+import { MODULE_ID, LAND_MS, TELEPORT_CELLS, RENDERERS } from "./constants.js";
 import { Settings } from "./settings.js";
-import { liftVector } from "./projection.js";
+import { activeRenderer, getPainter, isPixiRenderer } from "./renderers.js";
 import { playFootstep } from "./audio.js";
 
 /**
@@ -40,8 +32,8 @@ import { playFootstep } from "./audio.js";
  * @property {number} lift     Current height, in screen pixels.
  * @property {boolean} moving
  * @property {?{from: number, start: number}} settle  An interrupted stride.
- * @property {?{x: number, y: number}} base     The mesh position without us.
- * @property {?{x: number, y: number}} written  The mesh position with us.
+ * @property {string} renderer  Which painter currently owns this token.
+ * @property {object} paint     The painter's private bookkeeping.
  */
 
 /** @type {Map<string, MotionState>} */
@@ -50,7 +42,7 @@ const states = new Map();
 let running = false;
 
 /**
- * Put the hop's offset onto a token's mesh.
+ * Put the hop's current height onto whatever this renderer draws.
  *
  * Idempotent by construction — call it from the ticker and from the refresh
  * hook in the same frame and the result is identical.
@@ -59,43 +51,34 @@ let running = false;
  * @param {MotionState} state
  */
 function paint(token, state) {
-  const mesh = token.mesh;
-  if (!mesh?.position) return;
-
-  const position = mesh.position;
-
-  /* Recover the base. Exact equality is the right test: these are the very
-     floats we wrote, so a match means nothing else has touched the mesh. */
-  if (state.written && position.x === state.written.x && position.y === state.written.y) {
-    if (state.base) position.set(state.base.x, state.base.y);
-  }
-  state.base = { x: position.x, y: position.y };
-
-  if (!state.lift) {
-    state.written = null;
-    return;
-  }
-
-  const offset = liftVector(state.lift);
-  const x = state.base.x + offset.x;
-  const y = state.base.y + offset.y;
-  position.set(x, y);
-  state.written = { x, y };
+  getPainter(state.renderer).paint(token, state.paint, state.lift);
 }
 
 /**
- * Return a token's mesh to the floor and forget it.
+ * Put a token back on the floor and forget the offset.
  * @param {Token} token
  * @param {MotionState} state
  */
 function settleDown(token, state) {
-  const position = token?.mesh?.position;
-  if (position && state.written && position.x === state.written.x && position.y === state.written.y) {
-    if (state.base) position.set(state.base.x, state.base.y);
-  }
-  state.written = null;
-  state.base = null;
+  getPainter(state.renderer).clear(token, state.paint);
   state.lift = 0;
+}
+
+/**
+ * Hand a token over to a different painter, floor-first.
+ *
+ * A token mid-hop when the canvas switches from 2D to 3D would otherwise keep
+ * a PIXI offset nobody will ever take back off.
+ *
+ * @param {Token} token
+ * @param {MotionState} state
+ * @param {string} renderer
+ */
+function retarget(token, state, renderer) {
+  if (state.renderer === renderer) return;
+  getPainter(state.renderer).clear(token, state.paint);
+  state.renderer = renderer;
+  state.paint = {};
 }
 
 /**
@@ -105,9 +88,16 @@ function settleDown(token, state) {
  * @param {Token} token
  * @returns {boolean}
  */
-function tracked(token) {
+function tracked(token, renderer) {
   if (!token?.document || token.isPreview) return false;
-  if (Settings.ignoreElevated && (Number(token.document.elevation) || 0) > 0) return false;
+
+  /* "Ignore elevated tokens" means "do not make a flying creature clomp".
+     In 3D Canvas elevation is also how every upper floor is expressed, so
+     applying it there would silence a whole tavern's first storey. */
+  if (renderer !== RENDERERS.THREE
+    && Settings.ignoreElevated
+    && (Number(token.document.elevation) || 0) > 0) return false;
+
   return true;
 }
 
@@ -117,11 +107,11 @@ function tracked(token) {
  * @param {number} now      performance.now()
  * @param {number} gridSize
  */
-function step(token, now, gridSize) {
+function step(token, now, gridSize, renderer) {
   const id = token.document.id;
-  let state = states.get(id);
+  const state = states.get(id);
 
-  if (!tracked(token)) {
+  if (!tracked(token, renderer)) {
     if (state) {
       settleDown(token, state);
       states.delete(id);
@@ -137,10 +127,15 @@ function step(token, now, gridSize) {
 
   if (!state) {
     states.set(id, {
-      x, y, phase: 0, lift: 0, moving: false, settle: null, lastStep: 0, base: null, written: null
+      x, y, phase: 0, lift: 0, moving: false, settle: null, lastStep: 0,
+      renderer, paint: {}
     });
     return;
   }
+
+  // A canvas that switched between 2D, isometric and 3D hands the token to a
+  // different painter; the outgoing one puts it down before letting go.
+  retarget(token, state, renderer);
 
   const dx = x - state.x;
   const dy = y - state.y;
@@ -160,7 +155,7 @@ function step(token, now, gridSize) {
       state.phase = 0;
       state.lift = 0;
       state.moving = false;
-      if (state.written) settleDown(token, state);
+      settleDown(token, state);
       return;
     }
 
@@ -210,7 +205,7 @@ function halt(token, state, now) {
   if (!state.settle) {
     state.phase = 0;
     state.lift = 0;
-    if (state.written) settleDown(token, state);
+    settleDown(token, state);
   }
 }
 
@@ -230,7 +225,7 @@ function descend(token, state, now) {
     state.lift = 0;
   }
   paint(token, state);
-  if (!state.lift && state.written) settleDown(token, state);
+  if (!state.lift) settleDown(token, state);
 }
 
 export const Motion = {
@@ -245,9 +240,12 @@ export const Motion = {
     if (!canvas?.ready || !canvas.tokens?.placeables?.length) return;
     const gridSize = canvas.grid?.size || canvas.scene?.grid?.size || 100;
     const now = performance.now();
+    // Resolved once per frame rather than per token: it is the same answer
+    // for all of them, and it costs a settings read plus two module checks.
+    const renderer = activeRenderer();
     for (const token of canvas.tokens.placeables) {
       try {
-        step(token, now, gridSize);
+        step(token, now, gridSize, renderer);
       } catch (err) {
         // One bad token — mid-teardown, mid-redraw — must not stop the rest
         // of the table from walking.
@@ -258,17 +256,20 @@ export const Motion = {
   },
 
   /**
-   * Re-apply the offset after something else has rewritten the mesh.
+   * Re-apply the offset after something else has rewritten the token mesh.
    *
    * Registered on `refreshToken` during `ready`, which puts it behind
    * Isometric Perspective's own handler — the one that recomputes the mesh
    * position from the document. We get the last word on the frame.
    *
+   * Only the PIXI renderers care: 3D Canvas does not rebuild its models from
+   * this hook, and its painter would just do redundant work.
+   *
    * @param {Token} token
    */
   onRefresh(token) {
     const state = states.get(token?.document?.id);
-    if (!state?.lift) return;
+    if (!state?.lift || !isPixiRenderer(state.renderer)) return;
     try {
       paint(token, state);
     } catch (err) {

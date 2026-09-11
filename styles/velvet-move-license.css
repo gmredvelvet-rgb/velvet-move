@@ -6,7 +6,7 @@
    the module's own dialogs.
    ========================================================================== */
 
-.vm-license-card {
+.vmove-license-card {
   position: fixed;
   right: max(16px, env(safe-area-inset-right, 0px));
   bottom: max(16px, env(safe-area-inset-bottom, 0px));
@@ -22,19 +22,19 @@
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
   color: #e4d8bd;
   font-family: "Cormorant Garamond", "Palatino Linotype", Georgia, serif;
-  animation: vm-license-in 0.45s ease both;
+  animation: vmove-license-in 0.45s ease both;
 }
 
-@keyframes vm-license-in {
+@keyframes vmove-license-in {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .vm-license-card { animation: none; }
+  .vmove-license-card { animation: none; }
 }
 
-.vm-license-card header {
+.vmove-license-card header {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -50,7 +50,7 @@
   text-transform: uppercase;
 }
 
-.vm-license-card .vm-license-badge {
+.vmove-license-card .vmove-license-badge {
   margin-left: auto;
   padding: 2px 8px;
   border: 1px solid rgba(211, 176, 106, 0.45);
@@ -61,20 +61,20 @@
   white-space: nowrap;
 }
 
-.vm-license-card p {
+.vmove-license-card p {
   margin: 0;
   font-size: 1rem;
   line-height: 1.45;
 }
 
-.vm-license-card .vm-license-note {
+.vmove-license-card .vmove-license-note {
   margin-bottom: 8px;
   color: #9b8e74;
   font-size: 0.9rem;
   font-style: italic;
 }
 
-.vm-license-card :is(button, .vm-license-primary) {
+.vmove-license-card :is(button, .vmove-license-primary) {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -96,31 +96,31 @@
   transition: border-color 0.25s ease, color 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
 }
 
-.vm-license-card button:hover {
+.vmove-license-card button:hover {
   border-color: #d3b06a;
   color: #d3b06a;
   background: rgba(211, 176, 106, 0.08);
   box-shadow: 0 0 14px rgba(211, 176, 106, 0.22);
 }
 
-.vm-license-card button:disabled {
+.vmove-license-card button:disabled {
   opacity: 0.6;
   cursor: default;
 }
 
-.vm-license-card .vm-license-primary {
+.vmove-license-card .vmove-license-primary {
   border-color: transparent;
   background: #d3b06a;
   color: #171320;
 }
 
-.vm-license-card .vm-license-primary:hover {
+.vmove-license-card .vmove-license-primary:hover {
   background: #e6c684;
   color: #171320;
   box-shadow: 0 0 18px rgba(211, 176, 106, 0.35);
 }
 
-.vm-license-card .vm-license-dismiss {
+.vmove-license-card .vmove-license-dismiss {
   min-height: 0;
   padding: 2px;
   border: none;
@@ -132,7 +132,7 @@
   text-transform: none;
 }
 
-.vm-license-card .vm-license-dismiss:hover {
+.vmove-license-card .vmove-license-dismiss:hover {
   border: none;
   background: none;
   box-shadow: none;

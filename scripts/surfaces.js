@@ -11,8 +11,9 @@
  * @module surfaces
  */
 
-import { MODULE_ID, SETTINGS, SURFACE_FLAG, AUDIO_EXTENSIONS, defaultSurfaces } from "./constants.js";
+import { MODULE_ID, SETTINGS, SURFACE_FLAG, defaultSurfaces } from "./constants.js";
 import { Settings } from "./settings.js";
+import { refreshControls } from "./ui-refresh.js";
 
 /** @returns {Record<string, object>} The stored library, never empty. */
 export function getSurfaces() {
@@ -61,7 +62,7 @@ export async function setSceneSurfaceId(id) {
   const scene = canvas?.scene;
   if (!scene) return;
   await scene.setFlag(MODULE_ID, SURFACE_FLAG, id);
-  if (ui.controls?.rendered) ui.controls.render();
+  refreshControls();
 }
 
 /**
@@ -88,34 +89,4 @@ export function resolveSurface(token) {
   if (own && surfaces[own]) return surfaces[own];
   const sceneId = getSceneSurfaceId(token?.scene ?? canvas?.scene);
   return surfaces[sceneId] ?? null;
-}
-
-/** The file picker class, wherever this core version keeps it. */
-export function filePicker() {
-  return foundry.applications?.apps?.FilePicker?.implementation ?? globalThis.FilePicker;
-}
-
-/**
- * Every audio file directly inside a folder.
- * Resolved once, when the GM adds the folder, and stored as plain paths — a
- * surface that re-scanned at play time would put a network round-trip in the
- * middle of a footstep.
- *
- * @param {string} path    Folder path, as returned by the file picker.
- * @param {string} source  Data source ("data", "public", an S3 bucket…).
- * @returns {Promise<string[]>}
- */
-export async function browseAudioFolder(path, source = "data") {
-  const FP = filePicker();
-  if (!FP?.browse) return [];
-  try {
-    const result = await FP.browse(source, path);
-    return (result?.files ?? []).filter(file => {
-      const lower = file.toLowerCase().split("?")[0];
-      return AUDIO_EXTENSIONS.some(ext => lower.endsWith(ext));
-    });
-  } catch (err) {
-    console.warn(`${MODULE_ID} | Could not read the folder "${path}"`, err);
-    return [];
-  }
 }

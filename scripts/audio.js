@@ -9,9 +9,10 @@
  * @module audio
  */
 
-import { MODULE_ID, AUDIENCE, MIN_STEP_INTERVAL } from "./constants.js";
+import { MODULE_ID, AUDIENCE, MIN_STEP_INTERVAL, RENDERERS } from "./constants.js";
 import { Settings } from "./settings.js";
 import { resolveSurface } from "./surfaces.js";
+import { activeRenderer } from "./renderers.js";
 
 /** Last sample played per surface, so a walk does not repeat one file. */
 const lastSample = new Map();
@@ -59,11 +60,19 @@ function audible(token) {
 }
 
 /**
- * Is the token inside the viewport (with a cell of slack)?
+ * Is the token inside the viewport (with a little slack)?
+ *
+ * Answers true under 3D Canvas without looking: the PIXI mesh is still where
+ * the 2D canvas would put it, but nobody is looking through that camera any
+ * more, so its screen position says nothing about what the player can see.
+ * Guessing wrong towards silence would mute a scene; guessing wrong towards
+ * sound costs a footstep you might not have needed.
+ *
  * @param {Token} token
  * @returns {boolean}
  */
 function onScreen(token) {
+  if (activeRenderer() === RENDERERS.THREE) return true;
   try {
     const screen = canvas.app.renderer.screen;
     const point = token.mesh?.getGlobalPosition?.();
@@ -136,15 +145,26 @@ export async function play(src, volume, variation) {
 }
 
 /**
- * Audition a surface from the configuration menu, at full attention: no
- * audience filtering, no throttle, no pitch wobble hiding a bad sample.
+ * Audition a surface from the menu.
+ *
+ * Three steps rather than one: a footstep library is judged on how it sounds
+ * as a gait, and a single sample tells you nothing about whether the set
+ * repeats audibly.
+ *
  * @param {object} surface
+ * @param {number} [steps]
  */
-export function previewSurface(surface) {
-  const src = pickSample(surface);
-  if (!src) {
+export function previewSurface(surface, steps = 3) {
+  if (!surface?.sounds?.length) {
     ui.notifications.warn(game.i18n.localize("VELVETMOVE.notify.noSounds"));
     return;
   }
-  void play(src, Math.clamp(Settings.masterVolume * (Number(surface.volume) || 1), 0, 1), 0);
+  const volume = Math.clamp(Settings.masterVolume * (Number(surface.volume) || 1), 0, 1);
+  for (let i = 0; i < steps; i++) {
+    const src = pickSample(surface);
+    if (!src) return;
+    // Spaced like a walk, and pitch-varied like one, so the preview is what
+    // the table will actually hear.
+    setTimeout(() => void play(src, volume), i * 340);
+  }
 }

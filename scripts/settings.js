@@ -8,15 +8,29 @@
  * @module settings
  */
 
-import { MODULE_ID, SETTINGS, AUDIENCE, defaultSurfaces } from "./constants.js";
-
-/** Redraw the left-hand toolbar so surface buttons match reality. */
-function refreshControls() {
-  if (ui.controls?.rendered) ui.controls.render();
-}
+import { MODULE_ID, SETTINGS, AUDIENCE, RENDERERS, defaultSurfaces } from "./constants.js";
+import { refreshControls } from "./ui-refresh.js";
 
 export function registerSettings() {
   const register = (key, data) => game.settings.register(MODULE_ID, key, data);
+
+  /* Client scope, because the renderer is a per-client fact: 3D Canvas is
+     toggled by each player independently, so one seat can be in 3D while the
+     rest of the table is looking at the same scene in 2D. */
+  register(SETTINGS.RENDERER, {
+    name: "VELVETMOVE.settings.renderer.name",
+    hint: "VELVETMOVE.settings.renderer.hint",
+    scope: "client",
+    config: true,
+    type: String,
+    choices: {
+      [RENDERERS.AUTO]: "VELVETMOVE.settings.renderer.auto",
+      [RENDERERS.FLAT]: "VELVETMOVE.settings.renderer.flat",
+      [RENDERERS.ISOMETRIC]: "VELVETMOVE.settings.renderer.isometric",
+      [RENDERERS.THREE]: "VELVETMOVE.settings.renderer.three"
+    },
+    default: RENDERERS.AUTO
+  });
 
   register(SETTINGS.HOP_ENABLED, {
     name: "VELVETMOVE.settings.hopEnabled.name",
@@ -24,8 +38,7 @@ export function registerSettings() {
     scope: "client",
     config: true,
     type: Boolean,
-    default: true,
-    onChange: refreshControls
+    default: true
   });
 
   register(SETTINGS.HOP_HEIGHT, {
@@ -63,8 +76,7 @@ export function registerSettings() {
     scope: "client",
     config: true,
     type: Boolean,
-    default: true,
-    onChange: refreshControls
+    default: true
   });
 
   register(SETTINGS.MASTER_VOLUME, {
@@ -152,5 +164,6 @@ export const Settings = {
   get soundEnabled() { return this.get(SETTINGS.SOUND_ENABLED, true) !== false; },
   get masterVolume() { return Math.clamp(Number(this.get(SETTINGS.MASTER_VOLUME, 0.6)) || 0, 0, 1); },
   get audience() { return this.get(SETTINGS.AUDIENCE, AUDIENCE.ALL); },
+  get renderer() { return this.get(SETTINGS.RENDERER, RENDERERS.AUTO); },
   get pitchVariation() { return Math.clamp(Number(this.get(SETTINGS.PITCH_VARIATION, 0.12)) || 0, 0, 0.4); }
 };

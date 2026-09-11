@@ -12,6 +12,28 @@ export const MODULE_TITLE = "Velvet Move";
 /** The isometric module we are built to sit alongside. */
 export const ISO_ID = "isometric-perspective";
 
+/** theripper93's 3D Canvas, the third way a scene can be drawn. */
+export const CANVAS3D_ID = "levels-3d-preview";
+
+/**
+ * 3D Canvas measures its scene in canvas pixels divided by this. Read from
+ * the live module when it is running; this is the fallback for reporting
+ * before it has loaded.
+ */
+export const THREE_FACTOR = 1000;
+
+/** How a scene is drawn, and therefore what direction the hop travels in. */
+export const RENDERERS = Object.freeze({
+  /** Follow whatever the canvas is actually doing. */
+  AUTO: "auto",
+  /** Top-down: straight up the screen. */
+  FLAT: "2d",
+  /** Isometric Perspective: up, as its projection defines up. */
+  ISOMETRIC: "isometric",
+  /** 3D Canvas: up the world's vertical axis. */
+  THREE: "3d"
+});
+
 /** Setting keys, all registered under {@link MODULE_ID}. */
 export const SETTINGS = Object.freeze({
   HOP_ENABLED: "hopEnabled",
@@ -24,6 +46,7 @@ export const SETTINGS = Object.freeze({
   PITCH_VARIATION: "pitchVariation",
   SURFACES: "surfaces",
   DEFAULT_SURFACE: "defaultSurface",
+  RENDERER: "renderer",
   /**
    * Lo escribe el cliente del GM cuando Patreon verifica la suscripción y lo
    * lee todo el mundo, para que ningún jugador tenga que hablar con el

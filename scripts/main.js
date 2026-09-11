@@ -11,14 +11,19 @@ import { MODULE_ID, SETTINGS } from "./constants.js";
 import { registerSettings, Settings } from "./settings.js";
 import LicenseClient from "./license/license-client.js";
 import LicenseUI, { isWorldLicensed, registerLicenseMenu } from "./license/license-ui.js";
-import { registerControls } from "./controls.js";
+import { registerControls, openMenu } from "./controls.js";
 import { Motion } from "./motion.js";
 import { VelvetMoveMenu } from "./apps/menu.js";
 import {
   getSurfaces, getSceneSurfaceId, setSceneSurfaceId, setTokenSurfaceId, resolveSurface
 } from "./surfaces.js";
 import { previewSurface } from "./audio.js";
-import { isIsometricScene, liftVector } from "./projection.js";
+import { liftVector, flatLiftVector } from "./projection.js";
+import { activeRenderer, detectRenderer, isIsometricScene, is3DActive } from "./renderers.js";
+import {
+  buildConfig, serializeConfig, parseConfig, applyConfig,
+  listPresets, savePreset, loadPreset
+} from "./config-io.js";
 
 Hooks.once("init", () => {
   registerSettings();
@@ -35,7 +40,9 @@ Hooks.once("ready", () => {
   Motion.activate();
 
   game.modules.get(MODULE_ID).api = {
-    openMenu: () => new VelvetMoveMenu().render(true),
+    // The guarded opener, not a fresh instance: two windows sharing an
+    // element id detach each other's DOM node.
+    openMenu,
     getSurfaces,
     getSceneSurfaceId,
     setSceneSurfaceId,
@@ -43,12 +50,26 @@ Hooks.once("ready", () => {
     resolveSurface,
     previewSurface,
     isIsometricScene,
+    is3DActive,
+    activeRenderer,
+    detectRenderer,
     liftVector,
+    flatLiftVector,
     settings: Settings,
-    motion: Motion
+    motion: Motion,
+    // Saving and moving a setup between worlds, also reachable from a macro.
+    config: {
+      build: buildConfig,
+      serialize: serializeConfig,
+      parse: parseConfig,
+      apply: applyConfig,
+      listPresets,
+      savePreset,
+      loadPreset
+    }
   };
 
-  console.log(`${MODULE_ID} | ready — isometric scene: ${isIsometricScene()}`);
+  console.log(`${MODULE_ID} | ready — renderer: ${activeRenderer()} (detected: ${detectRenderer()})`);
 
   // Lo último a propósito: el salto y los pasos ya están activos antes de que
   // la licencia toque la red, así que una caída del servidor no retrasa nada
@@ -103,3 +124,8 @@ Hooks.on("canvasReady", () => {
   Motion.reset();
 });
 Hooks.on("deleteToken", tokenDoc => Motion.forget(tokenDoc.id));
+
+/* 3D Canvas rebuilds every token when it opens or closes. Any hop in flight
+   belongs to the outgoing renderer and has nowhere to be put down, so the
+   whole board starts from the floor again. */
+Hooks.on("3DCanvasToggleMode", () => Motion.reset());

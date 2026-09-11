@@ -61,7 +61,7 @@ export default class LicenseUI {
 
     const card = document.createElement("div");
     card.id = CARD_ID;
-    card.className = `vm-license-card ${licensed ? "is-active" : "is-trial"}`;
+    card.className = `vmove-license-card ${licensed ? "is-active" : "is-trial"}`;
     card.innerHTML = markup;
 
     card.addEventListener("click", event => {
@@ -133,7 +133,7 @@ export default class LicenseUI {
       <header>
         <i class="fa-solid fa-shoe-prints" aria-hidden="true"></i>
         <strong>${MODULE_TITLE}</strong>
-        ${badge ? `<span class="vm-license-badge">${badge}</span>` : ""}
+        ${badge ? `<span class="vmove-license-badge">${badge}</span>` : ""}
       </header>`;
   }
 
@@ -156,14 +156,14 @@ export default class LicenseUI {
   static #trialMarkupGM() {
     return `
       ${LicenseUI.#header(L("TrialBadge"))}
-      <p class="vm-license-status">${L("TrialIntro")}</p>
-      <p class="vm-license-note">${L("TrialPitch")}</p>
+      <p class="vmove-license-status">${L("TrialIntro")}</p>
+      <p class="vmove-license-note">${L("TrialPitch")}</p>
       ${LicenseUI.migrationNotice()}
-      <button type="button" data-action="connect" class="vm-license-primary">
+      <button type="button" data-action="connect" class="vmove-license-primary">
         <i class="fa-brands fa-patreon" aria-hidden="true"></i> ${L("Connect")}
       </button>
       <button type="button" data-action="code">${L("HaveCode")}</button>
-      <button type="button" data-action="dismiss" class="vm-license-dismiss">${L("Later")}</button>`;
+      <button type="button" data-action="dismiss" class="vmove-license-dismiss">${L("Later")}</button>`;
   }
 
   /**
@@ -174,9 +174,9 @@ export default class LicenseUI {
   static #trialMarkupPlayer() {
     return `
       ${LicenseUI.#header(L("TrialBadge"))}
-      <p class="vm-license-status">${L("TrialIntroPlayer")}</p>
-      <p class="vm-license-note">${L("TrialPlayerNote")}</p>
-      <button type="button" data-action="dismiss" class="vm-license-dismiss">${L("Close")}</button>`;
+      <p class="vmove-license-status">${L("TrialIntroPlayer")}</p>
+      <p class="vmove-license-note">${L("TrialPlayerNote")}</p>
+      <button type="button" data-action="dismiss" class="vmove-license-dismiss">${L("Close")}</button>`;
   }
 
   static #activeMarkup() {
@@ -186,10 +186,10 @@ export default class LicenseUI {
     const status = (tier === "none") ? L("StatusTrusted") : L("StatusActive", { tier });
     return `
       ${LicenseUI.#header()}
-      <p class="vm-license-status">${status}</p>
-      <p class="vm-license-note">${L("ReleaseHint")}</p>
+      <p class="vmove-license-status">${status}</p>
+      <p class="vmove-license-note">${L("ReleaseHint")}</p>
       <button type="button" data-action="release">${L("Release")}</button>
-      <button type="button" data-action="dismiss" class="vm-license-dismiss">${L("Close")}</button>`;
+      <button type="button" data-action="dismiss" class="vmove-license-dismiss">${L("Close")}</button>`;
   }
 
   /* -------------------------------------------- */
