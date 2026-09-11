@@ -11,6 +11,7 @@ import { MODULE_ID, SETTINGS } from "./constants.js";
 import { registerSettings, Settings } from "./settings.js";
 import LicenseClient from "./license/license-client.js";
 import LicenseUI, { isWorldLicensed, registerLicenseMenu } from "./license/license-ui.js";
+import { hubActive, licenseHub } from "./license/license-hub.js";
 import { registerControls, openMenu } from "./controls.js";
 import { Motion } from "./motion.js";
 import { VelvetMoveMenu } from "./apps/menu.js";
@@ -27,7 +28,8 @@ import {
 
 Hooks.once("init", () => {
   registerSettings();
-  registerLicenseMenu();
+  // Con el hub activo, su menú es el único sitio donde gestionar la licencia.
+  if ( !hubActive() ) registerLicenseMenu();
   registerControls();
 });
 
@@ -88,6 +90,10 @@ async function startLicenceCheck() {
   // Foundry también carga los módulos en las pantallas de join, setup y stream,
   // donde no hay mundo que licenciar ni a quién preguntar.
   if ( game.view !== "game" ) return;
+  // Con el hub activo la licencia es del hub: registrarse y callarse — ni
+  // servidor, ni tarjeta, ni recordatorio propios.
+  const hub = licenseHub();
+  if ( hub ) return void hub.register(MODULE_ID);
   try {
     if ( game.user?.isGM ) {
       // Cierto si está verificada ahora mismo o si sigue dentro de la ventana
@@ -113,6 +119,7 @@ async function startLicenceCheck() {
 // de un ajuste de mundo.
 Hooks.on("updateSetting", setting => {
   if ( setting.key !== `${MODULE_ID}.${SETTINGS.WORLD_LICENSED}` ) return;
+  if ( licenseHub() ) return;
   if ( isWorldLicensed() ) LicenseUI.stopReminder();
   else LicenseUI.startReminder();
 });
