@@ -1,4 +1,9 @@
 {
+  "VELVETMOVE.settings.talespireEcosystem.name": "TaleSpire ecosystem",
+  "VELVETMOVE.settings.talespireEcosystem.hint": "Play footsteps when linked TaleSpire miniatures move. Requires an active GM and TaleSpire Canvas Bridge. Uses the sounds you add below, even without a Foundry map. Choose the floor yourself; TaleSpire does not report its material.",
+  "VELVETMOVE.menu.settingsName": "Footstep sound library",
+  "VELVETMOVE.menu.settingsLabel": "Open sound panel",
+  "VELVETMOVE.menu.settingsHint": "Choose floor sounds, add audio files, and adjust your volume.",
   "VELVETMOVE.surfaces.stone": "Stone",
   "VELVETMOVE.surfaces.wood": "Wood",
   "VELVETMOVE.surfaces.grass": "Grass",

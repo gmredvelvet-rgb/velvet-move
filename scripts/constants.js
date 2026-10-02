@@ -41,6 +41,7 @@ export const SETTINGS = Object.freeze({
   STEP_LENGTH: "stepLength",
   IGNORE_ELEVATED: "ignoreElevated",
   SOUND_ENABLED: "soundEnabled",
+  TALESPIRE_ECOSYSTEM: "talespireEcosystem",
   MASTER_VOLUME: "masterVolume",
   AUDIENCE: "audience",
   PITCH_VARIATION: "pitchVariation",
@@ -91,7 +92,8 @@ export function defaultSurfaces() {
     id,
     label: `VELVETMOVE.surfaces.${id}`,
     icon,
-    sounds: [],
+    sounds: ["stone", "wood", "grass", "dirt", "gravel", "water"].includes(id)
+      ? [`modules/${MODULE_ID}/assets/footsteps/${id}.ogg`] : [],
     volume: 1
   }];
 

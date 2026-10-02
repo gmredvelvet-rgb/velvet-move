@@ -82,7 +82,7 @@ export async function checkSceneControls() {
 
   globalThis.foundry = {
     applications: {
-      api: { ApplicationV2: class {}, HandlebarsApplicationMixin: base => base, DialogV2: class {} },
+      api: { ApplicationV2: class { async render() { this.rendered = true; return this; } }, HandlebarsApplicationMixin: base => base, DialogV2: class {} },
       apps: {},
       instances: new Map()
     },

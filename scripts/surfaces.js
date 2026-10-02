@@ -14,6 +14,15 @@
 import { MODULE_ID, SETTINGS, SURFACE_FLAG, defaultSurfaces } from "./constants.js";
 import { Settings } from "./settings.js";
 import { refreshControls } from "./ui-refresh.js";
+import { BRIDGE_ID, bridgeApi } from "./talespire-context.js";
+
+function soundScene() {
+  if (Settings.talespireEcosystem && bridgeApi() && !canvas?.ready) {
+    const runtime = game.scenes?.contents?.find(scene => scene.getFlag?.(BRIDGE_ID, "runtimeScene") === true);
+    if (runtime) return runtime;
+  }
+  return canvas?.scene ?? game.scenes?.current ?? null;
+}
 
 /** @returns {Record<string, object>} The stored library, never empty. */
 export function getSurfaces() {
@@ -44,7 +53,7 @@ export function surfaceLabel(surface) {
 }
 
 /** @returns {string} The surface id this scene walks on. */
-export function getSceneSurfaceId(scene = canvas?.scene) {
+export function getSceneSurfaceId(scene = soundScene()) {
   const flagged = scene?.getFlag(MODULE_ID, SURFACE_FLAG);
   const surfaces = getSurfaces();
   if (flagged && surfaces[flagged]) return flagged;
@@ -59,7 +68,7 @@ export function getSceneSurfaceId(scene = canvas?.scene) {
  */
 export async function setSceneSurfaceId(id) {
   if (!game.user.isGM) return;
-  const scene = canvas?.scene;
+  const scene = soundScene();
   if (!scene) return;
   await scene.setFlag(MODULE_ID, SURFACE_FLAG, id);
   refreshControls();
@@ -75,7 +84,15 @@ export async function setTokenSurfaceId(tokenDocs, id) {
     ? { _id: doc.id, [`flags.${MODULE_ID}.-=${SURFACE_FLAG}`]: null }
     : { _id: doc.id, [`flags.${MODULE_ID}.${SURFACE_FLAG}`]: id });
   if (!updates.length) return;
-  await canvas.scene.updateEmbeddedDocuments("Token", updates);
+  const scenes = new Map();
+  for (let index = 0; index < tokenDocs.length; index++) {
+    const scene = tokenDocs[index].parent;
+    if (!scene) continue;
+    const group = scenes.get(scene) ?? [];
+    group.push(updates[index]);
+    scenes.set(scene, group);
+  }
+  for (const [scene, group] of scenes) await scene.updateEmbeddedDocuments("Token", group);
 }
 
 /**
@@ -87,6 +104,6 @@ export function resolveSurface(token) {
   const surfaces = getSurfaces();
   const own = token?.document?.getFlag(MODULE_ID, SURFACE_FLAG);
   if (own && surfaces[own]) return surfaces[own];
-  const sceneId = getSceneSurfaceId(token?.scene ?? canvas?.scene);
+  const sceneId = getSceneSurfaceId(token?.document?.parent ?? token?.scene ?? canvas?.scene);
   return surfaces[sceneId] ?? null;
 }

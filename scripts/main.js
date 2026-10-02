@@ -19,6 +19,7 @@ import {
   getSurfaces, getSceneSurfaceId, setSceneSurfaceId, setTokenSurfaceId, resolveSurface
 } from "./surfaces.js";
 import { previewSurface } from "./audio.js";
+import { registerTaleSpireFootsteps } from "./talespire-footsteps.js";
 import { liftVector, flatLiftVector } from "./projection.js";
 import { activeRenderer, detectRenderer, isIsometricScene, is3DActive } from "./renderers.js";
 import {
@@ -28,6 +29,14 @@ import {
 
 Hooks.once("init", () => {
   registerSettings();
+  game.settings.registerMenu(MODULE_ID, "footstepMenu", {
+    name: "VELVETMOVE.menu.settingsName",
+    label: "VELVETMOVE.menu.settingsLabel",
+    hint: "VELVETMOVE.menu.settingsHint",
+    icon: "fa-solid fa-shoe-prints",
+    type: VelvetMoveMenu,
+    restricted: false
+  });
   // Con el hub activo, su menú es el único sitio donde gestionar la licencia.
   if ( !hubActive() ) registerLicenseMenu();
   registerControls();
@@ -40,6 +49,7 @@ Hooks.once("ready", () => {
      during `ready` puts our repaint behind theirs, which is the only place
      the hop's offset survives to the frame. */
   Motion.activate();
+  registerTaleSpireFootsteps();
 
   game.modules.get(MODULE_ID).api = {
     // The guarded opener, not a fresh instance: two windows sharing an

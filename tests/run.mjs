@@ -72,7 +72,23 @@ const checks = [
   ["templates", checkTemplates],
   ["css collisions", checkCssCollisions],
   ["renderers", checkRenderers],
-  ["scene controls", checkSceneControls]
+  ["scene controls", checkSceneControls],
+  ["TaleSpire footsteps", () => {
+    try {
+      execFileSync(process.execPath, ["--test", "tests/talespire-footsteps.test.mjs"], { cwd: root, stdio: "pipe" });
+      return [];
+    } catch (error) {
+      return [String(error.stdout ?? error.message)];
+    }
+  }],
+  ["menu opening", () => {
+    try {
+      execFileSync(process.execPath, ["--test", "tests/menu-opening.test.mjs"], { cwd: root, stdio: "pipe" });
+      return [];
+    } catch (error) {
+      return [String(error.stdout ?? error.message)];
+    }
+  }]
 ];
 
 let failed = 0;

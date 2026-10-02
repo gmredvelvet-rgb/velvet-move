@@ -3,9 +3,8 @@
  *
  * A control group of its own, holding the two toggles worth reaching for
  * mid-session (bounce, sound), one button per floor material, and the way in
- * to the full menu. Selecting the group hands the canvas straight back to the
- * token layer, so dropping in to change the floor never costs you your
- * selection.
+ * to the full menu. Selecting the group also opens the sound panel without
+ * changing the active canvas layer.
  *
  * @module controls
  */
@@ -29,30 +28,36 @@ import { VelvetMoveMenu } from "./apps/menu.js";
 let opening = false;
 let menu = null;
 
-export function openMenu() {
+export async function openMenu({ toggle = true } = {}) {
   // The registry is authoritative; the local handle covers a core that does
   // not expose one, so the button still toggles rather than stacking windows.
-  const existing = foundry.applications?.instances?.get("velvet-move-menu")
-    ?? (menu?.rendered ? menu : null);
-  if (existing) {
-    existing.close();
-    menu = null;
-    return;
-  }
-
   if (opening) return;
   opening = true;
-  menu = new VelvetMoveMenu();
-  Promise.resolve(menu.render(true))
-    .catch(err => {
-      menu = null;
-      console.error(`${MODULE_ID} | could not open the menu`, err);
-      ui.notifications.error(game.i18n.format("VELVETMOVE.error.action", {
-        action: "menu",
-        message: err?.message ?? String(err)
-      }));
-    })
-    .finally(() => { opening = false; });
+  try {
+    const registered = foundry.applications?.instances?.get("velvet-move-menu");
+    const existing = registered?.rendered ? registered : (menu?.rendered ? menu : null);
+    if (existing) {
+      if (toggle) {
+        await existing.close();
+        menu = null;
+      } else {
+        await existing.maximize?.();
+        existing.bringToFront?.();
+      }
+      return;
+    }
+    menu = new VelvetMoveMenu();
+    await menu.render({ force: true });
+  } catch (err) {
+    menu = null;
+    console.error(`${MODULE_ID} | could not open the menu`, err);
+    ui.notifications.error(game.i18n.format("VELVETMOVE.error.action", {
+      action: "menu",
+      message: err?.message ?? String(err)
+    }));
+  } finally {
+    opening = false;
+  }
 }
 
 /**
@@ -129,6 +134,17 @@ function buildTools() {
 
 /** Register the toolbar hook. */
 export function registerControls() {
+  const bound = new WeakSet();
+  Hooks.on("renderSceneControls", (_app, html) => {
+    const root = html?.addEventListener ? html : html?.[0];
+    if (!root || bound.has(root)) return;
+    bound.add(root);
+    root.addEventListener("click", event => {
+      if (event.target.closest?.('[data-control="velvet-move"]')) {
+        void openMenu({ toggle: false });
+      }
+    });
+  });
   Hooks.on("getSceneControlButtons", controls => {
     const tools = buildTools();
     const title = game.i18n.localize("VELVETMOVE.controls.group");
@@ -160,6 +176,9 @@ export function registerControls() {
       icon,
       visible: true,
       order: Object.keys(controls).length + 1,
+      onChange: (_event, active) => {
+        if (active) void openMenu({ toggle: false });
+      },
       /* No `onChange` calling `canvas.tokens.activate()`. That looks like a
          courtesy — hand the canvas back so selecting this group costs you
          nothing — but `InteractionLayer#activate` reassigns

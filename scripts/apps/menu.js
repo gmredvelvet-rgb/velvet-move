@@ -542,6 +542,7 @@ export class VelvetMoveMenu extends HandlebarsApplicationMixin(ApplicationV2) {
         stepLength: Settings.stepLength,
         ignoreElevated: Settings.ignoreElevated,
         soundEnabled: Settings.soundEnabled,
+        talespireEcosystem: Settings.talespireEcosystem,
         masterVolume: Settings.masterVolume,
         volumePercent: Math.round(Settings.masterVolume * 100),
         pitchVariation: Settings.pitchVariation,
@@ -607,7 +608,7 @@ export class VelvetMoveMenu extends HandlebarsApplicationMixin(ApplicationV2) {
     let value = input.type === "checkbox" ? input.checked : input.value;
     if (input.type === "range" || input.type === "number") value = Number(value);
 
-    const worldKeys = [SETTINGS.STEP_LENGTH, SETTINGS.IGNORE_ELEVATED];
+    const worldKeys = [SETTINGS.STEP_LENGTH, SETTINGS.IGNORE_ELEVATED, SETTINGS.TALESPIRE_ECOSYSTEM];
     if (!game.user.isGM && worldKeys.includes(key)) {
       ui.notifications.warn(game.i18n.localize("VELVETMOVE.notify.gmOnly"));
       return;

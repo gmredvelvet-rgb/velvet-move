@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Velvet Move panel preview</title>
+<link rel="stylesheet" href="/styles/velvet-move.css"><link rel="stylesheet" href="/fontawesome/css/all.min.css">
+<style>
+body { background:#263630;color:#eee;font:14px Arial,sans-serif;margin:0; }
+.velvet-move-menu { width:min(540px,calc(100vw - 24px));height:720px;max-height:calc(100vh - 24px);margin:12px auto;background:#18171d;border:1px solid #807575;border-radius:6px;display:flex;flex-direction:column;box-sizing:border-box; }
+header { padding:12px 16px;font-weight:bold;background:#101015; }
+.window-content { min-height:0;flex:1; }
+button,input,select { font:inherit;color:inherit;background:#27262d;border:1px solid #807575;border-radius:4px;padding:6px; }
+input[type=checkbox] { accent-color:#b73760; }
+#saved { font-size:12px;padding:6px 16px;min-height:16px; }
+</style></head><body>
+<section class="velvet-move-menu"><header>Velvet Move - Footsteps &amp; Hop</header><div class="window-content" id="mount"></div><output id="saved">Preview</output></section>
+<script src="/handlebars.js"></script><script type="module">
+const strings = await (await fetch("/lang/en.json")).json();
+const values = new Map();
+window.canvas = null;
+window.game = {
+ user:{isGM:true,can:()=>false},
+ modules:{get:()=>null},
+ settings:{register:(_module,key,options)=>values.set(key,options.default),get:(_module,key)=>values.get(key),set:async(_module,key,value)=>{values.set(key,value);document.querySelector("#saved").textContent=key+": "+value;}},
+ i18n:{localize:key=>strings[key]??key,format:(key,args)=>Object.entries(args).reduce((text,[key,value])=>text.replace("{"+key+"}",value),strings[key]??key)}
+};
+window.ui = { controls:{rendered:false},notifications:{warn:console.warn,error:console.error,info:console.info} };
+Math.clamp=(n,min,max)=>Math.min(max,Math.max(min,n));
+const template = Handlebars.compile(await (await fetch("/templates/menu.hbs")).text());
+Handlebars.registerHelper("localize", key=>game.i18n.localize(key));
+Handlebars.registerHelper("checked", value=>new Handlebars.SafeString(value?"checked":""));
+Handlebars.registerHelper("numberFormat",(value,options)=>Number(value).toFixed(options.hash.decimals??0));
+class PreviewApp {
+ async render() { this.element=document.querySelector("#mount");this.rendered=true;const context=await this._prepareContext();this.element.innerHTML=template(context);this._onRender(context,{});return this;}
+ _onRender() {}
+}
+window.foundry = {
+ applications:{api:{ApplicationV2:PreviewApp,HandlebarsApplicationMixin:base=>base,DialogV2:{}},
+ apps:{FilePicker:{implementation:class {static async browse(){return {files:[]};}}}}},
+ utils:{getRoute:path=>"/"+path,escapeHTML:value=>String(value),deepClone:structuredClone}
+};
+const {registerSettings}=await import("/scripts/settings.js");
+registerSettings();
+const {VelvetMoveMenu}=await import("/scripts/apps/menu.js");
+const app = new VelvetMoveMenu(); await app.render();
+</script></body></html>

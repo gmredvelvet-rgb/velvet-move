@@ -54,6 +54,14 @@
 
     <hr>
 
+    {{#if isGM}}
+    <label class="vmove-toggle">
+      <input type="checkbox" data-setting="talespireEcosystem" {{checked motion.talespireEcosystem}}>
+      <span>{{localize "VELVETMOVE.settings.talespireEcosystem.name"}}</span>
+      <i class="fa-solid fa-circle-info" data-tooltip="{{localize 'VELVETMOVE.settings.talespireEcosystem.hint'}}"></i>
+    </label>
+    {{/if}}
+
     <label class="vmove-toggle">
       <input type="checkbox" data-setting="soundEnabled" {{checked motion.soundEnabled}}>
       <span>{{localize "VELVETMOVE.settings.soundEnabled.name"}}</span>

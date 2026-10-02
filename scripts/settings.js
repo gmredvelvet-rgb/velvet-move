@@ -79,6 +79,15 @@ export function registerSettings() {
     default: true
   });
 
+  register(SETTINGS.TALESPIRE_ECOSYSTEM, {
+    name: "VELVETMOVE.settings.talespireEcosystem.name",
+    hint: "VELVETMOVE.settings.talespireEcosystem.hint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false
+  });
+
   register(SETTINGS.MASTER_VOLUME, {
     name: "VELVETMOVE.settings.masterVolume.name",
     hint: "VELVETMOVE.settings.masterVolume.hint",
@@ -162,6 +171,7 @@ export const Settings = {
   get stepLength() { return Math.max(0.05, Number(this.get(SETTINGS.STEP_LENGTH, 1)) || 1); },
   get ignoreElevated() { return this.get(SETTINGS.IGNORE_ELEVATED, true) !== false; },
   get soundEnabled() { return this.get(SETTINGS.SOUND_ENABLED, true) !== false; },
+  get talespireEcosystem() { return this.get(SETTINGS.TALESPIRE_ECOSYSTEM, false) === true; },
   get masterVolume() { return Math.clamp(Number(this.get(SETTINGS.MASTER_VOLUME, 0.6)) || 0, 0, 1); },
   get audience() { return this.get(SETTINGS.AUDIENCE, AUDIENCE.ALL); },
   get renderer() { return this.get(SETTINGS.RENDERER, RENDERERS.AUTO); },

@@ -2,10 +2,11 @@
   "id": "velvet-move",
   "title": "Velvet Move — Hop & Footsteps",
   "description": "Tokens hop as they walk and footsteps sound underneath them, with a per-surface sound library (stone, wood, grass…) picked from a quick menu in the left toolbar. Works in top-down 2D, in Isometric Perspective scenes and in theripper93 3D Canvas.",
-  "version": "1.1.0",
+  "version": "1.2.3",
   "compatibility": {
-    "minimum": "12",
-    "verified": "13"
+    "minimum": "13",
+    "verified": "14",
+    "maximum": "14"
   },
   "authors": [
     {
@@ -33,6 +34,10 @@
   ],
   "relationships": {
     "optional": [
+      {
+        "id": "talespire-canvas-bridge",
+        "type": "module"
+      },
       {
         "id": "isometric-perspective",
         "type": "module"

@@ -13,6 +13,7 @@ import { MODULE_ID, AUDIENCE, MIN_STEP_INTERVAL, RENDERERS } from "./constants.j
 import { Settings } from "./settings.js";
 import { resolveSurface } from "./surfaces.js";
 import { activeRenderer } from "./renderers.js";
+import { linkedCreature, audibleBridgeToken, suppressNativeFootsteps } from "./talespire-context.js";
 
 /** Last sample played per surface, so a walk does not repeat one file. */
 const lastSample = new Map();
@@ -90,14 +91,19 @@ function onScreen(token) {
  * Play one footstep for a token.
  * @param {Token} token
  */
-export function playFootstep(token) {
+export function playFootstep(token, { talespire = false } = {}) {
   if (!Settings.soundEnabled) return;
   if (!token?.document || token.isPreview) return;
 
   const now = performance.now();
   if (now - lastPlayed < MIN_STEP_INTERVAL) return;
 
-  if (!audible(token)) return;
+  if (talespire) {
+    if (!linkedCreature(token.document) || !audibleBridgeToken(token.document)) return;
+  } else {
+    if (suppressNativeFootsteps(token.document)) return;
+    if (!audible(token)) return;
+  }
 
   const surface = resolveSurface(token);
   const src = pickSample(surface);
@@ -105,7 +111,7 @@ export function playFootstep(token) {
 
   const jitter = 1 - (Math.random() * 0.18);
   const volume = Math.clamp(
-    Settings.masterVolume * (Number(surface.volume) || 1) * jitter,
+    Settings.masterVolume * (Number.isFinite(surface.volume) ? surface.volume : 1) * jitter,
     0, 1
   );
   if (volume <= 0) return;
@@ -159,7 +165,7 @@ export function previewSurface(surface, steps = 3) {
     ui.notifications.warn(game.i18n.localize("VELVETMOVE.notify.noSounds"));
     return;
   }
-  const volume = Math.clamp(Settings.masterVolume * (Number(surface.volume) || 1), 0, 1);
+  const volume = Math.clamp(Settings.masterVolume * (Number.isFinite(surface.volume) ? surface.volume : 1), 0, 1);
   for (let i = 0; i < steps; i++) {
     const src = pickSample(surface);
     if (!src) return;
