@@ -6,5 +6,5 @@ The matching surfaces use these module-relative paths on a fresh install.
 Users can replace or remove them through the Footstep sound library.
 Saved world libraries are not overwritten by an update.
 
-Source audio redistribution rights must be confirmed by the project owner before
-public distribution; no third-party license is inferred from the export location.
+The project owner has confirmed they hold the rights to redistribute these samples
+with the module.
